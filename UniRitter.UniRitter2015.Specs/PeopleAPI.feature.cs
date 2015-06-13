@@ -79,7 +79,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 9
  testRunner.When("I post it to the /people API endpoint", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 10
- testRunner.Then("I receive a success (code 200) return message", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I receive a success (code 201) return message", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line 11
  testRunner.And("I receive the posted resource", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 12

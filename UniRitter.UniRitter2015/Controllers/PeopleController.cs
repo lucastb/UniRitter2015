@@ -29,7 +29,7 @@ namespace UniRitter.UniRitter2015.Controllers
             if (ModelState.IsValid)
             {
                 person.id = Guid.NewGuid();
-                return Json(person);
+                return Created("person/" + person.id, person);
             }
             else
             {
