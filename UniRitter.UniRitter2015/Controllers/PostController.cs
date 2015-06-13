@@ -8,28 +8,28 @@ using UniRitter.UniRitter2015.Models;
 
 namespace UniRitter.UniRitter2015.Controllers
 {
-    public class PeopleController : ApiController
+    public class PostController : ApiController
     {
-        // GET: api/Person
+        // GET: api/Post
         public IHttpActionResult Get()
         {
             var data = new string[] { "value1", "value2" };
             return Json(data);
         }
 
-        // GET: api/Person/5
+        // GET: api/Post/5
         public IHttpActionResult Get(Guid id)
         {
             return Json("value");
         }
 
-        // POST: api/Person
-        public IHttpActionResult Post([FromBody]PersonModel person)
+        // POST: api/Post
+        public IHttpActionResult Post([FromBody]PostModel post)
         {
             if (ModelState.IsValid)
             {
-                person.id = Guid.NewGuid();
-                return Json(person);
+                post.id = Guid.NewGuid();
+                return Created("posts/" + post.id, post);
             }
             else
             {
@@ -37,12 +37,12 @@ namespace UniRitter.UniRitter2015.Controllers
             }
         }
 
-        // PUT: api/Person/5
-        public IHttpActionResult Put(Guid id, [FromBody]PersonModel person)
+        // PUT: api/Post/5
+        public IHttpActionResult Put(Guid id, [FromBody]PostModel post)
         {
             if (ModelState.IsValid)
             {
-                return Json(person);
+                return Json(post);
             }
             else
             {
@@ -50,7 +50,7 @@ namespace UniRitter.UniRitter2015.Controllers
             }
         }
 
-        // DELETE: api/Person/5
+        // DELETE: api/Post/5
         public void Delete(Guid id)
         {
         }

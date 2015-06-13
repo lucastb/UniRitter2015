@@ -176,5 +176,58 @@ namespace UniRitter.UniRitter2015.Specs
             Assert.That(validationMessage, Contains.Substring("firstName"));
             Assert.That(validationMessage, Contains.Substring("email"));
         }
+
+
+        class Post
+        {
+            public Guid? id { get; set; }
+            public string title { get; set; }
+            public string body { get; set; }
+        }
+
+        Post postData;
+        Post resultPost;
+
+        [Given(@"a valid post resource")]
+        public void GivenAValidPostResource()
+        {
+            postData = new Post
+            {
+                title = "My new post",
+                body = "Example of body content"
+            };
+        }
+
+        [When(@"I post is to the /posts endpoint")]
+        public void WhenIPostIsToThePostsEndpoint()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("http://localhost:49556/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                response = client.PostAsJsonAsync("post", postData).Result;
+            }
+        }
+
+        [Then(@"I get a success \(code (.*)\) response code")]
+        public void ThenIGetASuccessCodeResponseCode(int code)
+        {
+            CheckCode(code);
+        }
+
+        [Then(@"I receive the posted resource of post")]
+        public void ThenIReceiveThePostedResourceOfPost()
+        {
+            resultPost = response.Content.ReadAsAsync<Post>().Result;
+            Assert.That(resultPost.title, Is.EqualTo(postData.title));
+            Assert.That(resultPost.body, Is.EqualTo(postData.body));
+        }
+
+        [Then(@"the resource id is populated")]
+        public void ThenTheResourceIdIsPopulated()
+        {
+            Assert.That(resultPost.id, Is.Not.Null);
+        }
     }
 }
