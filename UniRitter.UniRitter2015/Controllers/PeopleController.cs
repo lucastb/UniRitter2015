@@ -24,12 +24,12 @@ namespace UniRitter.UniRitter2015.Controllers
         }
 
         // POST: api/Person
-        public IHttpActionResult Post([FromBody]PersonModel value)
+        public IHttpActionResult Post([FromBody]PersonModel person)
         {
             if (ModelState.IsValid)
             {
-                value.id = Guid.NewGuid();
-                return Json(value);
+                person.id = Guid.NewGuid();
+                return Json(person);
             }
             else
             {
@@ -38,9 +38,16 @@ namespace UniRitter.UniRitter2015.Controllers
         }
 
         // PUT: api/Person/5
-        public IHttpActionResult Put(int id, [FromBody]PersonModel value)
+        public IHttpActionResult Put(Guid id, [FromBody]PersonModel person)
         {
-            return Json(value);
+            if (ModelState.IsValid)
+            {
+                return Json(person);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         // DELETE: api/Person/5
