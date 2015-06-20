@@ -56,8 +56,7 @@ namespace UniRitter.UniRitter2015.Controllers
         {
             if (ModelState.IsValid)
             {
-                var data = _repo.Update(id, person);
-                return Json(person);
+                return Json(_repo.Update(id, person));
             }
             else
             {

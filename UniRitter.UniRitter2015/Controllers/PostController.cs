@@ -5,22 +5,36 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using UniRitter.UniRitter2015.Models;
+using UniRitter.UniRitter2015.Services;
 
 namespace UniRitter.UniRitter2015.Controllers
 {
     public class PostController : ApiController
     {
+        private readonly IRepository<PostModel> _repo;
+
+        public PostController(IRepository<PostModel> repo)
+        {
+            this._repo = repo;
+        }
+
         // GET: api/Post
         public IHttpActionResult Get()
         {
-            var data = new string[] { "value1", "value2" };
-            return Json(data);
+            return Json(_repo.GetAll());
         }
 
         // GET: api/Post/5
         public IHttpActionResult Get(Guid id)
         {
-            return Json("value");
+            var data = _repo.GetById(id);
+
+            if (data != null)
+            {
+                return Json(data);
+            }
+
+            return NotFound();
         }
 
         // POST: api/Post
@@ -29,7 +43,8 @@ namespace UniRitter.UniRitter2015.Controllers
             if (ModelState.IsValid)
             {
                 post.id = Guid.NewGuid();
-                return Created("posts/" + post.id, post);
+                var data = _repo.Add(post);
+                return Created("posts/" + data.id, data);
             }
             else
             {
@@ -42,7 +57,7 @@ namespace UniRitter.UniRitter2015.Controllers
         {
             if (ModelState.IsValid)
             {
-                return Json(post);
+                return Json(_repo.Update(id, post));
             }
             else
             {
@@ -51,8 +66,10 @@ namespace UniRitter.UniRitter2015.Controllers
         }
 
         // DELETE: api/Post/5
-        public void Delete(Guid id)
+        public IHttpActionResult Delete(Guid id)
         {
+            _repo.Delete(id);
+            return StatusCode(HttpStatusCode.NoContent);
         }
     }
 }
