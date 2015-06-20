@@ -41,13 +41,9 @@ namespace UniRitter.UniRitter2015.Controllers
         {
             if (ModelState.IsValid)
             {
-<<<<<<< HEAD
                 person.id = Guid.NewGuid();
-                return Created("person/" + person.id, person);
-=======
                 var data = _repo.Add(person);
-                return Json(data);
->>>>>>> 27f39a4e0e36a346c696d346979b2e636b39c224
+                return Created("person/" + data.id, data);
             }
             else
             {
@@ -58,9 +54,9 @@ namespace UniRitter.UniRitter2015.Controllers
         // PUT: api/Person/5
         public IHttpActionResult Put(Guid id, [FromBody]PersonModel person)
         {
-<<<<<<< HEAD
             if (ModelState.IsValid)
             {
+                var data = _repo.Update(id, person);
                 return Json(person);
             }
             else
@@ -70,15 +66,7 @@ namespace UniRitter.UniRitter2015.Controllers
         }
 
         // DELETE: api/Person/5
-        public void Delete(Guid id)
-=======
-            var data = _repo.Update(id, person);
-            return Json(person);
-        }
-
-        // DELETE: api/Person/5
         public IHttpActionResult Delete(Guid id)
->>>>>>> 27f39a4e0e36a346c696d346979b2e636b39c224
         {
             _repo.Delete(id);
             return StatusCode(HttpStatusCode.NoContent);

@@ -102,7 +102,6 @@ namespace UniRitter.UniRitter2015.Specs
             var validationMessage = response.Content.ReadAsStringAsync().Result;
             Assert.That(validationMessage, Contains.Substring("firstName"));
             Assert.That(validationMessage, Contains.Substring("email"));
-<<<<<<< HEAD
         }
 
 
@@ -229,8 +228,6 @@ namespace UniRitter.UniRitter2015.Specs
         public void ThenTheResourceIdIsPopulated()
         {
             Assert.That(resultPost.id, Is.Not.Null);
-=======
->>>>>>> 27f39a4e0e36a346c696d346979b2e636b39c224
         }
     }
 }
