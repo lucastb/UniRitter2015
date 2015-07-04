@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace UniRitter.UniRitter2015.Specs
 {
@@ -183,6 +184,8 @@ namespace UniRitter.UniRitter2015.Specs
             public Guid? id { get; set; }
             public string title { get; set; }
             public string body { get; set; }
+            public Person author { get; set; }
+            public IEnumerable<string> tags { get; set; }
         }
 
         Post postData;
@@ -191,10 +194,14 @@ namespace UniRitter.UniRitter2015.Specs
         [Given(@"a valid post resource")]
         public void GivenAValidPostResource()
         {
+            IEnumerable<string> tags = new string[] { "tag 1", "tag 2" };
+            
             postData = new Post
             {
                 title = "My new post",
-                body = "Example of body content"
+                body = "Example of body content",
+                author = new Person{ id = Guid.NewGuid() },
+                tags = tags
             };
         }
 

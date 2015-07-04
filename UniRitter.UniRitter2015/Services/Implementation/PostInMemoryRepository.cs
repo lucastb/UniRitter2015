@@ -7,11 +7,11 @@ using UniRitter.UniRitter2015.Models;
 
 namespace UniRitter.UniRitter2015.Services.Implementation
 {
-    public class PersonInMemoryRepository : IRepository<PersonModel>
+    public class PostInMemoryRepository : IRepository<PostModel>
     {
-        private static readonly Dictionary<Guid, PersonModel> Data = new Dictionary<Guid, PersonModel>();
+        private static readonly Dictionary<Guid, PostModel> Data = new Dictionary<Guid, PostModel>();
 
-        public PersonModel Add(PersonModel model)
+        public PostModel Add(PostModel model)
         {
             var id = Guid.NewGuid();
             model.id = id;
@@ -20,13 +20,12 @@ namespace UniRitter.UniRitter2015.Services.Implementation
             return model;
         }
 
-        public bool Delete(Guid modelId)
+        public void Delete(Guid modelId)
         {
             Data.Remove(modelId);
-            return true;
         }
 
-        public PersonModel Update(Guid id, PersonModel model)
+        public PostModel Update(Guid id, PostModel model)
         {
             // TODO: this is __NOT__ thread safe!
             // TODO: id should be checked against model.id
@@ -34,12 +33,12 @@ namespace UniRitter.UniRitter2015.Services.Implementation
             return model;
         }
 
-        public IEnumerable<PersonModel> GetAll()
+        public IEnumerable<PostModel> GetAll()
         {
             return Data.Values;
         }
 
-        public PersonModel GetById(Guid id)
+        public PostModel GetById(Guid id)
         {
             return Data.ContainsKey(id) ? Data[id] : null;
         }
