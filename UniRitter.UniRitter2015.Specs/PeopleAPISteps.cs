@@ -200,7 +200,7 @@ namespace UniRitter.UniRitter2015.Specs
             {
                 title = "My new post",
                 body = "Example of body content",
-                author = new Person{ id = Guid.NewGuid() },
+                // author = { id = personData.id },
                 tags = tags
             };
         }
