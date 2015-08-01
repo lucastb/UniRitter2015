@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using UniRitter.UniRitter2015.Models;
 using UniRitter.UniRitter2015.Services;
@@ -15,59 +13,48 @@ namespace UniRitter.UniRitter2015.Controllers
 
         public PeopleController(IRepository<PersonModel> repo)
         {
-            this._repo = repo;
+            _repo = repo;
         }
 
         // GET: api/Person
-        public IHttpActionResult Get()
+        public async Task<IHttpActionResult> Get()
         {
-            return Json(_repo.GetAll());
+            return Json(await _repo.GetAll());
         }
 
         // GET: api/Person/5
-        public IHttpActionResult Get(Guid id)
+        public async Task<IHttpActionResult> Get(Guid id)
         {
-            var data = _repo.GetById(id);
+            var data = await _repo.GetById(id);
             if (data != null)
             {
                 return Json(data);
             }
-
             return NotFound();
         }
 
         // POST: api/Person
-        public IHttpActionResult Post([FromBody]PersonModel person)
+        public async Task<IHttpActionResult> Post([FromBody] PersonModel person)
         {
             if (ModelState.IsValid)
             {
-                person.id = Guid.NewGuid();
-                var data = _repo.Add(person);
-                return Created("person/" + data.id, data);
+                var data = await _repo.Add(person);
+                return Json(data);
             }
-            else
-            {
-                return BadRequest(ModelState);
-            }
+            return BadRequest(ModelState);
         }
 
         // PUT: api/Person/5
-        public IHttpActionResult Put(Guid id, [FromBody]PersonModel person)
+        public async Task<IHttpActionResult> Put(Guid id, [FromBody] PersonModel person)
         {
-            if (ModelState.IsValid)
-            {
-                return Json(_repo.Update(id, person));
-            }
-            else
-            {
-                return BadRequest(ModelState);
-            }
+            var data = await _repo.Update(id, person);
+            return Json(person);
         }
 
         // DELETE: api/Person/5
-        public IHttpActionResult Delete(Guid id)
+        public async Task<IHttpActionResult> Delete(Guid id)
         {
-            _repo.Delete(id);
+            await _repo.Delete(id);
             return StatusCode(HttpStatusCode.NoContent);
         }
     }
