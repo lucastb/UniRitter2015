@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
 namespace UniRitter.UniRitter2015.Models
 {
     public class PersonModel: IModel

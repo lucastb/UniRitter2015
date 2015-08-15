@@ -62,10 +62,23 @@ namespace UniRitter.UniRitter2015.Specs
             Assert.That(result.firstName, Is.EqualTo(personData.firstName));
         }
 
+        [Then(@"I receive the posted resource for post")]
+        public void ThenIReceiveThePostedResourceForPost()
+        {
+            resultPost = response.Content.ReadAsAsync<PostModel>().Result;
+            Assert.That(resultPost.title, Is.EqualTo(postData.title));
+        }
+
         [Then(@"the posted resource now has an ID")]
         public void ThenThePostedResourceNowHasAnID()
         {
             Assert.That(result.id, Is.Not.Null);
+        }
+
+        [Then(@"the posted resource now has an ID for post")]
+        public void ThenThePostedResourceNowHasAnIDForPost()
+        {
+            Assert.That(resultPost.id, Is.Not.Null);
         }
 
         [Then(@"I receive an error \(code (.*)\) return message")]
@@ -123,6 +136,14 @@ namespace UniRitter.UniRitter2015.Specs
         {
             var id = result.id.Value;
             var newEntry = client.GetAsync("people/" + id).Result;
+            Assert.That(newEntry, Is.Not.Null);
+        }
+
+        [Then(@"I can fetch it from the API for post")]
+        public void ThenICanFetchItFromTheAPIForPost()
+        {
+            var id = resultPost.id.Value;
+            var newEntry = client.GetAsync("posts/" + id).Result;
             Assert.That(newEntry, Is.Not.Null);
         }
 
@@ -198,5 +219,48 @@ namespace UniRitter.UniRitter2015.Specs
                 return id.GetHashCode();
             }
         }
+
+
+
+
+        private IEnumerable<PostModel> backgroundPostData;
+        private PostModel postData;
+        private PostModel resultPost;
+
+
+
+        [Given(@"an API populated with the following posts")]
+        public void GivenAnAPIPopulatedWithTheFollowingPosts(Table table)
+        {
+            backgroundPostData = table.CreateSet<PostModel>();
+            //var mongoRepo = new MongoRepository<PersonModel>(new ApiConfig());
+            //mongoRepo.Upsert(table.CreateSet<PersonModel>());
+            var repo = new InMemoryRepository<PostModel>();
+            foreach (var entry in table.CreateSet<PostModel>())
+            {
+                repo.Add(entry);
+            }
+        }
+
+        [Given(@"a post resource as described below:")]
+        public void GivenAPostResourceAsDescribedBelow(Table table)
+        {
+            postData = new PostModel();
+            table.FillInstance(postData);
+        }
+
+        [When(@"I post it to the /posts API endpoint")]
+        public void WhenIPostItToThePostsAPIEndpoint()
+        {
+            response = client.PostAsJsonAsync("posts", postData).Result;
+        }
+
+        [When(@"I post the following data to the /posts API endpoint: \{}")]
+        public void WhenIPostTheFollowingDataToThePostsAPIEndpoint(string jsonData)
+        {
+            postData = JsonConvert.DeserializeObject<PostModel>(jsonData);
+            response = client.PostAsJsonAsync("posts", postData).Result;
+        }
+
     }
 }
