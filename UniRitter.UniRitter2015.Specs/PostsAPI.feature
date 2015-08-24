@@ -31,7 +31,7 @@ Background:
 	| c2423529-b1bd-4dfb-8a0b-5541f04e2ce7 |
 
 	@integrated
-	Scenario: Add a post
+	Scenario: Insert a valid post
 	Given a post resource as described below:
 	| body        | title   | authorId                             | tags     |
 	| My new Post | New one	| 8d0d477f-1378-4fc1-bb47-29eb3ea959e1 | New,Post |

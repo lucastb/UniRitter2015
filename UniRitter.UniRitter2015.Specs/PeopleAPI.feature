@@ -30,7 +30,7 @@ Background:
 	| 1a5fd0be-d654-40ff-8190-ca59e3b52e76	|	
 
 	@integrated
-	Scenario: Add a person
+	Scenario: Insert a valid person
 	Given a person resource as described below:
 	| firstName | lastName	| email				| url					|
 	| Josh		| Doe		| josh@email.com	| http://josh.doe.com	|

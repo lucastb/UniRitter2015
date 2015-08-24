@@ -63,28 +63,22 @@ namespace UniRitter.UniRitter2015.Specs
         {
             resultData = (IModel) response.Content.ReadAsAsync(modelType).Result;
             
-            if (modelType == typeof(PostModel))
+            switch(modelType.Name)
             {
-                assertPostedResourcePost((PostModel) resultData);
-            } else if (modelType == typeof(PersonModel))
-            {
-                assertPostedResourcePerson((PersonModel) resultData);
-            } else
-            {
-                ScenarioContext.Current.Pending();
+                case "PersonModel":
+                    var personResult = (PersonModel)resultData;
+                    var personData = (PersonModel)modelData;
+                    Assert.That(personData.firstName, Is.EqualTo(personResult.firstName));
+                    break;
+                case "PostModel":
+                    var postResult = (PostModel)resultData;
+                    var postData = (PostModel)modelData;
+                    Assert.That(postData.title, Is.EqualTo(postResult.title));
+                    break;
+                default:
+                    ScenarioContext.Current.Pending();
+                    break;
             }
-        }
-        
-        private void assertPostedResourcePerson(PersonModel person)
-        {
-            var personData = (PersonModel)modelData;
-            Assert.That(person.firstName, Is.EqualTo(personData.firstName));
-        }
-
-        private void assertPostedResourcePost(PostModel post)
-        {
-            var postData = (PostModel)modelData;
-            Assert.That(post.title, Is.EqualTo(postData.title));
         }
 
         [Then(@"the posted resource now has an ID")]
@@ -125,23 +119,6 @@ namespace UniRitter.UniRitter2015.Specs
         {
             var resourceList = (IEnumerable<IModel>) response.Content.ReadAsAsync(modelTypeList).Result;
             Assert.That(resourceList, Is.SubsetOf(backgroundData));
-
-            /*
-            switch (modelType.Name)
-            {
-                case "PersonModel":
-                    var resourceListPerson = response.Content.ReadAsAsync<IEnumerable<PersonModel>>().Result;
-                    Assert.That(resourceListPerson, Is.SubsetOf(backgroundDataPerson));
-                    break;
-                case "PostModel":
-                    var resourceListPost = response.Content.ReadAsAsync<IEnumerable<PostModel>>().Result;
-                    Assert.That(resourceListPost, Is.SubsetOf(backgroundDataPost));
-                    break;
-                default:
-                    ScenarioContext.Current.Pending();
-                    break;
-            }
-            */
         }
 
         [Then(@"the data matches that id")]
@@ -193,13 +170,26 @@ namespace UniRitter.UniRitter2015.Specs
             }
         }
 
-        [When(@"I post the following data to the /people API endpoint: (.+)")]
-        public void WhenIPostTheFollowingDataToThePeopleAPIEndpoint(string jsonData)
+        [When(@"I post the following data to the /(.+) API endpoint: (.+)")]
+        public void WhenIPostTheFollowingDataToThePeopleAPIEndpoint(string path, string jsonData)
         {
-            modelData = JsonConvert.DeserializeObject<PersonModel>(jsonData);
-            response = client.PostAsJsonAsync("people", modelData).Result;
+            switch(modelType.Name)
+            {
+                case "PersonModel":
+                    modelData = JsonConvert.DeserializeObject<PersonModel>(jsonData);
+                    response = client.PostAsJsonAsync(path, modelData).Result;
+                    break;
+                case "PostModel":
+                    modelData = JsonConvert.DeserializeObject<PostModel>(jsonData);
+                    response = client.PostAsJsonAsync(path, modelData).Result;
+                    break;
+                default:
+                    ScenarioContext.Current.Pending();
+                    break;
+            }
+            
         }
-
+        
         [Then(@"I receive a message that conforms (.+)")]
         public void ThenIReceiveAMessageThatConforms(string pattern)
         {
@@ -207,10 +197,6 @@ namespace UniRitter.UniRitter2015.Specs
             StringAssert.IsMatch(pattern, msg);
         }
         
-
-
-
-
         [Given(@"an API populated with the following posts")]
         public void GivenAnAPIPopulatedWithTheFollowingPosts(Table table)
         {
@@ -231,13 +217,5 @@ namespace UniRitter.UniRitter2015.Specs
             modelData = new PostModel();
             table.FillInstance((PostModel) modelData);
         }
-        
-        [When(@"I post the following data to the /posts API endpoint: (.+)")]
-        public void WhenIPostTheFollowingDataToThePostsAPIEndpoint(string jsonData)
-        {
-            modelData = JsonConvert.DeserializeObject<PostModel>(jsonData);
-            response = client.PostAsJsonAsync("posts", modelData).Result;
-        }
-
     }
 }

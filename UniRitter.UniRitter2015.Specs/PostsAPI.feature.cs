@@ -156,11 +156,11 @@ this.FeatureBackground();
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add a post")]
+        [NUnit.Framework.DescriptionAttribute("Insert a valid post")]
         [NUnit.Framework.CategoryAttribute("integrated")]
-        public virtual void AddAPost()
+        public virtual void InsertAValidPost()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add a post", new string[] {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Insert a valid post", new string[] {
                         "integrated"});
 #line 34
  this.ScenarioSetup(scenarioInfo);

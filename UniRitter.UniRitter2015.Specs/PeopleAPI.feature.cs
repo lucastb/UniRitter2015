@@ -151,11 +151,11 @@ this.FeatureBackground();
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add a person")]
+        [NUnit.Framework.DescriptionAttribute("Insert a valid person")]
         [NUnit.Framework.CategoryAttribute("integrated")]
-        public virtual void AddAPerson()
+        public virtual void InsertAValidPerson()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add a person", new string[] {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Insert a valid person", new string[] {
                         "integrated"});
 #line 33
  this.ScenarioSetup(scenarioInfo);
