@@ -143,6 +143,7 @@
     <Compile Include="Controllers\PostsController.cs" />
     <Compile Include="Models\CommentModel.cs" />
     <Compile Include="Models\IModel.cs" />
+    <Compile Include="Models\Model.cs" />
     <Compile Include="Models\PersonModel.cs" />
     <Compile Include="Models\PostModel.cs" />
     <Compile Include="obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />

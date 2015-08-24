@@ -38,7 +38,7 @@ Background:
 	Then I receive a success (code 200) return message
 	And I receive the posted resource
 	And the posted resource now has an ID
-	And I can fetch it from the API
+	And I can fetch it from the /people API endpoint
 
 	@integrated
 	Scenario Outline: Invalid person data on insertion

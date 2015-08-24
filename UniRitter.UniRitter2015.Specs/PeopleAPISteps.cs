@@ -18,11 +18,13 @@ namespace UniRitter.UniRitter2015.Specs
     public class PeopleAPISteps
     {
         private readonly HttpClient client;
-        private Type modelType;
-        private IEnumerable<IModel> backgroundData;
-        private string path;
-        private IModel modelData;
         private HttpResponseMessage response;
+        private string path;
+
+        private Type modelType;
+        private Type modelTypeList;
+        private IEnumerable<IModel> backgroundData;
+        private IModel modelData;
         private IModel resultData;
 
         public PeopleAPISteps()
@@ -33,10 +35,10 @@ namespace UniRitter.UniRitter2015.Specs
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        [When(@"I post it to the /people API endpoint")]
-        public void WhenIPostItToThePeopleAPIEndpoint()
+        [When(@"I post it to the /(.+) API endpoint")]
+        public void WhenIPostItToTheAPIEndpoint(string path)
         {
-            response = client.PostAsJsonAsync("people", modelData).Result;
+            response = client.PostAsJsonAsync(path, modelData).Result;
         }
 
         private void CheckCode(int code)
@@ -55,25 +57,34 @@ namespace UniRitter.UniRitter2015.Specs
             
             CheckCode(code);
         }
-
-        private void checkPersonData(Person p)
-        {
-
-        }
-
+        
         [Then(@"I receive the posted resource")]
         public void ThenIReceiveThePostedResource()
         {
-            resultData = (IModel)response.Content.ReadAsAsync(modelType).Result;
-            //Assert.That(resultData.firstName, Is.EqualTo(modelData.firstName));
-            // switch
+            resultData = (IModel) response.Content.ReadAsAsync(modelType).Result;
+            
+            if (modelType == typeof(PostModel))
+            {
+                assertPostedResourcePost((PostModel) resultData);
+            } else if (modelType == typeof(PersonModel))
+            {
+                assertPostedResourcePerson((PersonModel) resultData);
+            } else
+            {
+                ScenarioContext.Current.Pending();
+            }
+        }
+        
+        private void assertPostedResourcePerson(PersonModel person)
+        {
+            var personData = (PersonModel)modelData;
+            Assert.That(person.firstName, Is.EqualTo(personData.firstName));
         }
 
-        [Then(@"I receive the posted resource for post")]
-        public void ThenIReceiveThePostedResourceForPost()
+        private void assertPostedResourcePost(PostModel post)
         {
-            resultData = response.Content.ReadAsAsync<PostModel>().Result;
-            Assert.That(resultData.title, Is.EqualTo(modelData.title));
+            var postData = (PostModel)modelData;
+            Assert.That(post.title, Is.EqualTo(postData.title));
         }
 
         [Then(@"the posted resource now has an ID")]
@@ -81,13 +92,7 @@ namespace UniRitter.UniRitter2015.Specs
         {
             Assert.That(resultData.id, Is.Not.Null);
         }
-
-        [Then(@"the posted resource now has an ID for post")]
-        public void ThenThePostedResourceNowHasAnIDForPost()
-        {
-            Assert.That(resultData.id, Is.Not.Null);
-        }
-
+        
         [Then(@"I receive an error \(code (.*)\) return message")]
         public void ThenIReceiveAnErrorCodeReturnMessage(int code)
         {
@@ -118,22 +123,32 @@ namespace UniRitter.UniRitter2015.Specs
         [Then(@"I get a list containing the populated resources")]
         public void ThenIGetAListContainingThePopulatedResources()
         {
-            var resourceList = response.Content.ReadAsAsync<IEnumerable<Person>>().Result;
-            Assert.That(backgroundData, Is.SubsetOf(resourceList));
-        }
+            var resourceList = (IEnumerable<IModel>) response.Content.ReadAsAsync(modelTypeList).Result;
+            Assert.That(resourceList, Is.SubsetOf(backgroundData));
 
-        [Then(@"I get a list containing the populated resources from post")]
-        public void ThenIGetAListContainingThePopulatedResourcesFromPost()
-        {
-            var resourceList = response.Content.ReadAsAsync<IEnumerable<PostModel>>().Result;
-            Assert.That(backgroundData, Is.SubsetOf(resourceList));
+            /*
+            switch (modelType.Name)
+            {
+                case "PersonModel":
+                    var resourceListPerson = response.Content.ReadAsAsync<IEnumerable<PersonModel>>().Result;
+                    Assert.That(resourceListPerson, Is.SubsetOf(backgroundDataPerson));
+                    break;
+                case "PostModel":
+                    var resourceListPost = response.Content.ReadAsAsync<IEnumerable<PostModel>>().Result;
+                    Assert.That(resourceListPost, Is.SubsetOf(backgroundDataPost));
+                    break;
+                default:
+                    ScenarioContext.Current.Pending();
+                    break;
+            }
+            */
         }
 
         [Then(@"the data matches that id")]
         public void ThenIGetThePersonRecordThatMatchesThatId()
         {
             var id = new Guid(path.Substring(path.LastIndexOf('/') + 1));
-            resultData = response.Content.ReadAsAsync<Person>().Result;
+            resultData = (IModel) response.Content.ReadAsAsync(modelType).Result;
             var expected = backgroundData.Single(p => p.id == id);
             Assert.That(resultData, Is.EqualTo(expected));
         }
@@ -141,26 +156,18 @@ namespace UniRitter.UniRitter2015.Specs
         [Given(@"a person resource as described below:")]
         public void GivenAPersonResourceAsDescribedBelow(Table table)
         {
-            modelData = new Person();
-            table.FillInstance(modelData);
+            modelData = new PersonModel();
+            table.FillInstance((PersonModel)modelData);
         }
 
-        [Then(@"I can fetch it from the API")]
-        public void ThenICanFetchItFromTheAPI()
+        [Then(@"I can fetch it from the /(.+) API endpoint")]
+        public void ThenICanFetchItFromTheAPIEndpoint(string path)
         {
             var id = resultData.id.Value;
-            var newEntry = client.GetAsync("people/" + id).Result;
+            var newEntry = client.GetAsync(path + "/" + id).Result;
             Assert.That(newEntry, Is.Not.Null);
         }
-
-        [Then(@"I can fetch it from the API for post")]
-        public void ThenICanFetchItFromTheAPIForPost()
-        {
-            var id = resultData.id.Value;
-            var newEntry = client.GetAsync("posts/" + id).Result;
-            Assert.That(newEntry, Is.Not.Null);
-        }
-
+        
         [Given(@"a ""(.*)"" resource")]
         public void GivenAResource(string p0)
         {
@@ -177,21 +184,19 @@ namespace UniRitter.UniRitter2015.Specs
         public void GivenAnAPIPopulatedWithTheFollowingPeople(Table table)
         {
             modelType = typeof(PersonModel);
+            modelTypeList = typeof(IEnumerable<PersonModel>);
             backgroundData = table.CreateSet<PersonModel>();
-
-            //var mongoRepo = new MongoRepository<PersonModel>(new ApiConfig());
-            //mongoRepo.Upsert(table.CreateSet<PersonModel>());
-
+            
             var repo = new InMemoryRepository<PersonModel>();
-            foreach (var entry in table.CreateSet<PersonModel>()) {
-                repo.Add(entry);
+            foreach (var entry in backgroundData) {
+                repo.Add((PersonModel) entry);
             }
         }
 
         [When(@"I post the following data to the /people API endpoint: (.+)")]
         public void WhenIPostTheFollowingDataToThePeopleAPIEndpoint(string jsonData)
         {
-            modelData = JsonConvert.DeserializeObject<modelType>(jsonData);
+            modelData = JsonConvert.DeserializeObject<PersonModel>(jsonData);
             response = client.PostAsJsonAsync("people", modelData).Result;
         }
 
@@ -201,56 +206,22 @@ namespace UniRitter.UniRitter2015.Specs
             var msg = response.Content.ReadAsStringAsync().Result;
             StringAssert.IsMatch(pattern, msg);
         }
+        
 
-        private class Person : IModel
-        {
-            public Guid? id { get; set; }
-            public string firstName { get; set; }
-            public string lastName { get; set; }
-            public string email { get; set; }
-            public string url { get; set; }
 
-            public bool Equals(Person other)
-            {
-                if (other == null) return false;
 
-                return
-                    id == other.id
-                    && firstName == other.firstName
-                    && lastName == other.lastName
-                    && email == other.email
-                    && url == other.url;
-            }
-
-            public override bool Equals(object obj)
-            {
-                if (obj != null)
-                {
-                    return Equals(obj as Person);
-                }
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return id.GetHashCode();
-            }
-        }
-
-        // private IEnumerable<PostModel> backgroundPostData;
-        // private PostModel postData;
-        // private PostModel resultPost;
 
         [Given(@"an API populated with the following posts")]
         public void GivenAnAPIPopulatedWithTheFollowingPosts(Table table)
         {
             modelType = typeof(PostModel);
+            modelTypeList = typeof(IEnumerable<PostModel>);
             backgroundData = table.CreateSet<PostModel>();
             
             var repo = new InMemoryRepository<PostModel>();
-            foreach (var entry in table.CreateSet<PostModel>())
+            foreach (var entry in backgroundData)
             {
-                repo.Add(entry);
+                repo.Add((PostModel) entry);
             }
         }
 
@@ -258,16 +229,10 @@ namespace UniRitter.UniRitter2015.Specs
         public void GivenAPostResourceAsDescribedBelow(Table table)
         {
             modelData = new PostModel();
-            table.FillInstance(modelData);
+            table.FillInstance((PostModel) modelData);
         }
-
-        [When(@"I post it to the /posts API endpoint")]
-        public void WhenIPostItToThePostsAPIEndpoint()
-        {
-            response = client.PostAsJsonAsync("posts", modelData).Result;
-        }
-
-        [When(@"I post the following data to the /posts API endpoint: \{}")]
+        
+        [When(@"I post the following data to the /posts API endpoint: (.+)")]
         public void WhenIPostTheFollowingDataToThePostsAPIEndpoint(string jsonData)
         {
             modelData = JsonConvert.DeserializeObject<PostModel>(jsonData);

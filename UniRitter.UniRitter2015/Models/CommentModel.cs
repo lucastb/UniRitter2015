@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 namespace UniRitter.UniRitter2015.Models
 {
-    public class CommentModel : IModel
+    public class CommentModel : Model
     {
-        public Guid? id { get; set; }
-
         [Required]
         [MaxLength(4000)]
         public string body { get; set; }
@@ -16,5 +14,17 @@ namespace UniRitter.UniRitter2015.Models
         public string title { get; set; }
 
         public Guid authorId { get; set; }
+
+        public override bool Equals(Model model)
+        {
+            if (model == null) return false;
+
+            var comment = (CommentModel)model;
+
+            return
+                id == comment.id
+                && title == comment.title
+                && authorId == comment.authorId;
+        }
     }
 }
